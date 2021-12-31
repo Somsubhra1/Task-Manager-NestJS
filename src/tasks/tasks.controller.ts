@@ -25,28 +25,28 @@ export class TasksController {
   }
 
   @Get(":id")
-  getTaskById(@Param("id") taskId: number): Task {
+  getTaskById(@Param("id") taskId: number): TaskAPIResponse {
     this.logger.debug("Get task by id");
     return this.taskService.getTaskById(Number(taskId));
   }
 
   @Post()
-  createTask(@Body() task: Task): Task {
+  createTask(@Body() task: Task): TaskAPIResponse {
     this.logger.debug("Creating task");
     return this.taskService.createTask(task);
   }
 
   @Put(":id")
-  updateTask(@Body() task: Task, @Param("id") taskId: number): Task {
+  updateTask(@Body() task: Task, @Param("id") taskId: number): TaskAPIResponse {
     this.logger.debug("Updating task");
     return this.taskService.updateTask(task, Number(taskId));
   }
 
   @Patch(":id")
-  toggleComplete(@Param("id") taskId: number): Task {
+  toggleComplete(@Param("id") taskId: number): TaskAPIResponse {
     this.logger.debug("Updating task complete status");
 
-    return this.taskService.completeTask(Number(taskId));
+    return this.taskService.toggleComplete(Number(taskId));
   }
 
   @Delete(":id")

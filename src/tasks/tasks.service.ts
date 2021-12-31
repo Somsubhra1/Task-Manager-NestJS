@@ -24,41 +24,82 @@ export class TasksService {
     return this.tasks;
   }
 
-  getTaskById(taskId: number): Task {
-    return this.tasks.filter((task) => task.id === taskId)[0];
+  getTaskById(taskId: number): TaskAPIResponse {
+    const task = this.tasks.filter((task) => task.id === taskId)[0];
+
+    if (!task) {
+      return {
+        success: false,
+        task: null,
+        msg: `No task with id ${taskId} found!`,
+      };
+    }
+    return {
+      success: true,
+      task,
+      msg: `Task fetched!`,
+    };
   }
-  createTask(task: Task): Task {
+  createTask(task: Task): TaskAPIResponse {
     task.isCompleted = false;
     task.taskDate = new Date();
     task.id = this.tasks.length + 1;
 
     this.tasks.push(task);
 
-    return task;
+    return {
+      success: true,
+      task,
+      msg: `Task added!`,
+    };
   }
 
-  updateTask(task: Task, taskId: number): Task {
+  updateTask(task: Task, taskId: number): TaskAPIResponse {
     const taskIndex = this.tasks.findIndex((task) => task.id === taskId);
-    console.log(taskIndex);
+    if (taskIndex === -1) {
+      return {
+        success: false,
+        task: null,
+        msg: `No task with id ${taskId} found!`,
+      };
+    }
 
     task.taskDate = this.tasks[taskIndex].taskDate;
     task.id = this.tasks[taskIndex].id;
     this.tasks[taskIndex] = task;
 
-    return this.tasks[taskIndex];
+    return {
+      success: true,
+      task: this.tasks[taskIndex],
+      msg: `Task updated!`,
+    };
   }
 
-  completeTask(taskId: number): Task {
-    const task = this.getTaskById(taskId);
+  toggleComplete(taskId: number): TaskAPIResponse {
+    const { task } = this.getTaskById(taskId);
+    if (!task) {
+      return {
+        success: false,
+        task: null,
+        msg: `No task with id ${taskId} found!`,
+      };
+    }
     task.isCompleted = !task.isCompleted;
 
-    return this.updateTask(task, taskId);
+    return { ...this.updateTask(task, taskId), msg: "Task completed" };
   }
 
   deleteTask(taskId: number): TaskAPIResponse {
     const taskIndex = this.tasks.findIndex((task) => task.id === taskId);
 
-    const task = this.getTaskById(taskId);
+    const { task } = this.getTaskById(taskId);
+    if (!task) {
+      return {
+        success: false,
+        task: null,
+        msg: `No task with id ${taskId} found!`,
+      };
+    }
 
     this.tasks.splice(taskIndex, 1);
 
