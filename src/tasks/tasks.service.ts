@@ -1,3 +1,4 @@
+import { TaskAPIResponse } from "./dto/taskAPI.response";
 import { Task } from "./task.entity";
 import { Injectable } from "@nestjs/common";
 
@@ -52,5 +53,15 @@ export class TasksService {
     task.isCompleted = !task.isCompleted;
 
     return this.updateTask(task, taskId);
+  }
+
+  deleteTask(taskId: number): TaskAPIResponse {
+    const taskIndex = this.tasks.findIndex((task) => task.id === taskId);
+
+    const task = this.getTaskById(taskId);
+
+    this.tasks.splice(taskIndex, 1);
+
+    return { success: true, task, msg: "Task deleted" };
   }
 }

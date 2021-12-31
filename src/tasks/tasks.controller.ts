@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Logger,
   Param,
@@ -10,6 +11,7 @@ import {
 } from "@nestjs/common";
 import { TasksService } from "./tasks.service";
 import { Task } from "./task.entity";
+import { TaskAPIResponse } from "./dto/taskAPI.response";
 
 @Controller("tasks")
 export class TasksController {
@@ -27,6 +29,7 @@ export class TasksController {
     this.logger.debug("Get task by id");
     return this.taskService.getTaskById(Number(taskId));
   }
+
   @Post()
   createTask(@Body() task: Task): Task {
     this.logger.debug("Creating task");
@@ -38,10 +41,16 @@ export class TasksController {
     this.logger.debug("Updating task");
     return this.taskService.updateTask(task, Number(taskId));
   }
+
   @Patch(":id")
   toggleComplete(@Param("id") taskId: number): Task {
     this.logger.debug("Updating task complete status");
 
     return this.taskService.completeTask(Number(taskId));
+  }
+
+  @Delete(":id")
+  deleteTask(@Param("id") taskId: number): TaskAPIResponse {
+    return this.taskService.deleteTask(Number(taskId));
   }
 }
