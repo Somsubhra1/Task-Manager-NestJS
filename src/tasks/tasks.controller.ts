@@ -4,6 +4,7 @@ import {
   Get,
   Logger,
   Param,
+  Patch,
   Post,
   Put,
 } from "@nestjs/common";
@@ -36,5 +37,11 @@ export class TasksController {
   updateTask(@Body() task: Task, @Param("id") taskId: number): Task {
     this.logger.debug("Updating task");
     return this.taskService.updateTask(task, Number(taskId));
+  }
+  @Patch(":id")
+  toggleComplete(@Param("id") taskId: number): Task {
+    this.logger.debug("Updating task complete status");
+
+    return this.taskService.completeTask(Number(taskId));
   }
 }

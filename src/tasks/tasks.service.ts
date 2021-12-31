@@ -46,4 +46,11 @@ export class TasksService {
 
     return this.tasks[taskIndex];
   }
+
+  completeTask(taskId: number): Task {
+    const task = this.getTaskById(taskId);
+    task.isCompleted = !task.isCompleted;
+
+    return this.updateTask(task, taskId);
+  }
 }
