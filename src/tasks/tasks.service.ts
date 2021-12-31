@@ -16,7 +16,7 @@ export class TasksService {
       description: "Desc 2",
       isCompleted: false,
       taskDate: new Date(),
-      id: 1,
+      id: 2,
     },
   ];
   getTasks(): Task[] {
@@ -34,5 +34,16 @@ export class TasksService {
     this.tasks.push(task);
 
     return task;
+  }
+
+  updateTask(task: Task, taskId: number): Task {
+    const taskIndex = this.tasks.findIndex((task) => task.id === taskId);
+    console.log(taskIndex);
+
+    task.taskDate = this.tasks[taskIndex].taskDate;
+    task.id = this.tasks[taskIndex].id;
+    this.tasks[taskIndex] = task;
+
+    return this.tasks[taskIndex];
   }
 }
