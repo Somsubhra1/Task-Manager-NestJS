@@ -8,23 +8,6 @@ import { CreateTaskDto } from "./dto/createTask";
 
 @Injectable()
 export class TasksService {
-  private readonly tasks: Task[] = [
-    {
-      title: "Test 1",
-      description: "Desc 1",
-      isCompleted: false,
-      taskDate: new Date(),
-      id: 1,
-    },
-    {
-      title: "Test 2",
-      description: "Desc 2",
-      isCompleted: false,
-      taskDate: new Date(),
-      id: 2,
-    },
-  ];
-
   constructor(
     @InjectRepository(TasksRepository) private taskRepository: TasksRepository,
   ) {}
@@ -51,8 +34,6 @@ export class TasksService {
   }
   async createTask(task: CreateTaskDto): Promise<TaskAPIResponse> {
     const newTask = await this.taskRepository.createTask(task);
-
-    console.log(newTask);
 
     if (!newTask) {
       return {
