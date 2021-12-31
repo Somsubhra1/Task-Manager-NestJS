@@ -1,6 +1,10 @@
+import { UpdateTaskDto } from "./dto/updateTask";
 import { TaskAPIResponse } from "./dto/taskAPI.response";
 import { Task } from "./task.entity";
 import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { TasksRepository } from "./tasks.repository";
+import { CreateTaskDto } from "./dto/createTask";
 
 @Injectable()
 export class TasksService {
@@ -20,12 +24,17 @@ export class TasksService {
       id: 2,
     },
   ];
-  getTasks(): Task[] {
-    return this.tasks;
+
+  constructor(
+    @InjectRepository(TasksRepository) private taskRepository: TasksRepository,
+  ) {}
+
+  getTasks(): Promise<Task[]> {
+    return this.taskRepository.find();
   }
 
-  getTaskById(taskId: number): TaskAPIResponse {
-    const task = this.tasks.filter((task) => task.id === taskId)[0];
+  async getTaskById(taskId: number): Promise<TaskAPIResponse> {
+    const task = await this.taskRepository.findOne(taskId);
 
     if (!task) {
       return {
@@ -40,43 +49,49 @@ export class TasksService {
       msg: `Task fetched!`,
     };
   }
-  createTask(task: Task): TaskAPIResponse {
-    task.isCompleted = false;
-    task.taskDate = new Date();
-    task.id = this.tasks.length + 1;
+  async createTask(task: CreateTaskDto): Promise<TaskAPIResponse> {
+    const newTask = await this.taskRepository.createTask(task);
 
-    this.tasks.push(task);
+    console.log(newTask);
 
+    if (!newTask) {
+      return {
+        success: false,
+        task: null,
+        msg: `Couldn't add Task!`,
+      };
+    }
     return {
       success: true,
-      task,
+      task: newTask,
       msg: `Task added!`,
     };
   }
 
-  updateTask(task: Task, taskId: number): TaskAPIResponse {
-    const taskIndex = this.tasks.findIndex((task) => task.id === taskId);
-    if (taskIndex === -1) {
+  async updateTask(
+    task: UpdateTaskDto,
+    taskId: number,
+  ): Promise<TaskAPIResponse> {
+    const { task: oldTask } = await this.getTaskById(taskId);
+
+    if (!oldTask) {
       return {
         success: false,
         task: null,
-        msg: `No task with id ${taskId} found!`,
+        msg: `Couldn't find Task!`,
       };
     }
 
-    task.taskDate = this.tasks[taskIndex].taskDate;
-    task.id = this.tasks[taskIndex].id;
-    this.tasks[taskIndex] = task;
-
+    const updatedTask = await this.taskRepository.updateTask(task, taskId);
     return {
       success: true,
-      task: this.tasks[taskIndex],
+      task: updatedTask,
       msg: `Task updated!`,
     };
   }
 
-  toggleComplete(taskId: number): TaskAPIResponse {
-    const { task } = this.getTaskById(taskId);
+  async toggleComplete(taskId: number): Promise<TaskAPIResponse> {
+    const { task } = await this.getTaskById(taskId);
     if (!task) {
       return {
         success: false,
@@ -86,13 +101,16 @@ export class TasksService {
     }
     task.isCompleted = !task.isCompleted;
 
-    return { ...this.updateTask(task, taskId), msg: "Task completed" };
+    const updateTaskRes = await this.updateTask(task, taskId);
+
+    return {
+      ...updateTaskRes,
+      msg: `Task marked ${task.isCompleted ? "complete" : "incomplete"}`,
+    };
   }
 
-  deleteTask(taskId: number): TaskAPIResponse {
-    const taskIndex = this.tasks.findIndex((task) => task.id === taskId);
-
-    const { task } = this.getTaskById(taskId);
+  async deleteTask(taskId: number): Promise<TaskAPIResponse> {
+    const { task } = await this.getTaskById(taskId);
     if (!task) {
       return {
         success: false,
@@ -101,7 +119,7 @@ export class TasksService {
       };
     }
 
-    this.tasks.splice(taskIndex, 1);
+    await this.taskRepository.remove(task);
 
     return { success: true, task, msg: "Task deleted" };
   }

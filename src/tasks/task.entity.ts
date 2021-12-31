@@ -16,6 +16,6 @@ export class Task {
   })
   isCompleted: boolean;
 
-  @Column()
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   taskDate: Date;
 }
