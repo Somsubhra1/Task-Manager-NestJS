@@ -15,6 +15,7 @@ export class TasksController {
 
   @Get(":id")
   getTaskById(@Param("id") taskId: number): Task {
+    this.logger.debug("Get task by id");
     return this.taskService.getTaskById(Number(taskId));
   }
   @Post()
