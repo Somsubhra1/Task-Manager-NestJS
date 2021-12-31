@@ -19,11 +19,14 @@ export class TasksService {
       id: 1,
     },
   ];
-  getTasks() {
+  getTasks(): Task[] {
     return this.tasks;
   }
 
-  createTask(task: Task) {
+  getTaskById(taskId: number): Task {
+    return this.tasks.filter((task) => task.id === taskId)[0];
+  }
+  createTask(task: Task): Task {
     task.isCompleted = false;
     task.taskDate = new Date();
     task.id = this.tasks.length + 1;
