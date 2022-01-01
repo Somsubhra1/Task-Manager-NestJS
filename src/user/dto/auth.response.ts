@@ -5,7 +5,13 @@ import {
   IsObject,
   IsString,
 } from "class-validator";
-import { User } from "../user.entity";
+
+interface User {
+  name: string;
+  email: string;
+  id: number;
+  registerDate: Date;
+}
 
 export class AuthResponseBody {
   @IsBoolean()
