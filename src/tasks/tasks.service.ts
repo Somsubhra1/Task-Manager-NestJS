@@ -5,6 +5,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TasksRepository } from "./tasks.repository";
 import { CreateTaskDto } from "./dto/createTask";
+import { User } from "src/user/user.entity";
 
 @Injectable()
 export class TasksService {
@@ -12,12 +13,12 @@ export class TasksService {
     @InjectRepository(TasksRepository) private taskRepository: TasksRepository,
   ) {}
 
-  getTasks(): Promise<Task[]> {
-    return this.taskRepository.find();
+  getTasks(user: User): Promise<Task[]> {
+    return this.taskRepository.find({ user });
   }
 
-  async getTaskById(taskId: number): Promise<TaskAPIResponse> {
-    const task = await this.taskRepository.findOne(taskId);
+  async getTaskById(taskId: number, user: User): Promise<TaskAPIResponse> {
+    const task = await this.taskRepository.findOne({ id: taskId, user });
 
     if (!task) {
       return {
@@ -32,8 +33,8 @@ export class TasksService {
       msg: `Task fetched!`,
     };
   }
-  async createTask(task: CreateTaskDto): Promise<TaskAPIResponse> {
-    const newTask = await this.taskRepository.createTask(task);
+  async createTask(task: CreateTaskDto, user: User): Promise<TaskAPIResponse> {
+    const newTask = await this.taskRepository.createTask(task, user);
 
     if (!newTask) {
       return {
@@ -52,8 +53,9 @@ export class TasksService {
   async updateTask(
     task: UpdateTaskDto,
     taskId: number,
+    user: User,
   ): Promise<TaskAPIResponse> {
-    const { task: oldTask } = await this.getTaskById(taskId);
+    const { task: oldTask } = await this.getTaskById(taskId, user);
 
     if (!oldTask) {
       return {
@@ -71,8 +73,8 @@ export class TasksService {
     };
   }
 
-  async toggleComplete(taskId: number): Promise<TaskAPIResponse> {
-    const { task } = await this.getTaskById(taskId);
+  async toggleComplete(taskId: number, user: User): Promise<TaskAPIResponse> {
+    const { task } = await this.getTaskById(taskId, user);
     if (!task) {
       return {
         success: false,
@@ -82,7 +84,7 @@ export class TasksService {
     }
     task.isCompleted = !task.isCompleted;
 
-    const updateTaskRes = await this.updateTask(task, taskId);
+    const updateTaskRes = await this.updateTask(task, taskId, user);
 
     return {
       ...updateTaskRes,
@@ -90,8 +92,8 @@ export class TasksService {
     };
   }
 
-  async deleteTask(taskId: number): Promise<TaskAPIResponse> {
-    const { task } = await this.getTaskById(taskId);
+  async deleteTask(taskId: number, user: User): Promise<TaskAPIResponse> {
+    const { task } = await this.getTaskById(taskId, user);
     if (!task) {
       return {
         success: false,

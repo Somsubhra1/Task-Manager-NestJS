@@ -2,18 +2,20 @@ import { UpdateTaskDto } from "./dto/updateTask";
 import { EntityRepository, Repository } from "typeorm";
 import { CreateTaskDto } from "./dto/createTask";
 import { Task } from "./task.entity";
+import { User } from "src/user/user.entity";
 
 @EntityRepository(Task)
 export class TasksRepository extends Repository<Task> {
-  async createTask(task: CreateTaskDto): Promise<Task> {
+  async createTask(task: CreateTaskDto, user: User): Promise<Task> {
     const { title, description } = task;
 
-    this.create({
+    const newTask = this.create({
       title,
       description,
+      user,
     });
 
-    const savedTask = await this.save(task);
+    const savedTask = await this.save(newTask);
     return savedTask;
   }
 
