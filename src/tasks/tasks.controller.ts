@@ -77,8 +77,9 @@ export class TasksController {
   @Delete(":id")
   deleteTask(
     @Param("id") taskId: number,
-    @GetUser() user,
+    @GetUser() user: User,
   ): Promise<TaskAPIResponse> {
+    this.logger.debug("Deleting task");
     return this.taskService.deleteTask(Number(taskId), user);
   }
 }
