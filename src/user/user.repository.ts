@@ -5,8 +5,9 @@ import * as bcrypt from "bcrypt";
 import {
   ConflictException,
   InternalServerErrorException,
+  UnauthorizedException,
 } from "@nestjs/common";
-import { AuthResponseBody } from "./dto/auth.response";
+import { LoginRequestBody } from "./dto/loginAPI.request";
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
@@ -30,6 +31,16 @@ export class UserRepository extends Repository<User> {
       } else {
         throw new InternalServerErrorException();
       }
+    }
+  }
+  async loginUser(loginRequestBody: LoginRequestBody) {
+    const { email, password } = loginRequestBody;
+    const user = await this.findOne({ email });
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      return user;
+    } else {
+      throw new UnauthorizedException("Email or password incorrect");
     }
   }
 }
