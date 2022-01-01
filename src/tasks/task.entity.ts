@@ -13,7 +13,7 @@ export class Task {
   description: string;
 
   @Column({
-    default: true,
+    default: false,
   })
   isCompleted: boolean;
 
