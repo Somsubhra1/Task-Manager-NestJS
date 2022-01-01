@@ -1,7 +1,11 @@
 import { UpdateTaskDto } from "./dto/updateTask";
 import { TaskAPIResponse } from "./dto/taskAPI.response";
 import { Task } from "./task.entity";
-import { Injectable } from "@nestjs/common";
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TasksRepository } from "./tasks.repository";
 import { CreateTaskDto } from "./dto/createTask";
@@ -21,11 +25,7 @@ export class TasksService {
     const task = await this.taskRepository.findOne({ id: taskId, user });
 
     if (!task) {
-      return {
-        success: false,
-        task: null,
-        msg: `No task with id ${taskId} found!`,
-      };
+      throw new NotFoundException(`Task with id ${taskId} not found`);
     }
     return {
       success: true,
@@ -37,11 +37,7 @@ export class TasksService {
     const newTask = await this.taskRepository.createTask(task, user);
 
     if (!newTask) {
-      return {
-        success: false,
-        task: null,
-        msg: `Couldn't add Task!`,
-      };
+      throw new InternalServerErrorException("Couldn't create task");
     }
     return {
       success: true,
@@ -57,15 +53,13 @@ export class TasksService {
   ): Promise<TaskAPIResponse> {
     const { task: oldTask } = await this.getTaskById(taskId, user);
 
-    if (!oldTask) {
-      return {
-        success: false,
-        task: null,
-        msg: `Couldn't find Task!`,
-      };
-    }
+    const { title, description, isCompleted } = task;
 
-    const updatedTask = await this.taskRepository.updateTask(task, taskId);
+    oldTask.title = title;
+    oldTask.description = description;
+    oldTask.isCompleted = isCompleted;
+
+    const updatedTask = await this.taskRepository.save(oldTask);
     return {
       success: true,
       task: updatedTask,
@@ -75,13 +69,6 @@ export class TasksService {
 
   async toggleComplete(taskId: number, user: User): Promise<TaskAPIResponse> {
     const { task } = await this.getTaskById(taskId, user);
-    if (!task) {
-      return {
-        success: false,
-        task: null,
-        msg: `No task with id ${taskId} found!`,
-      };
-    }
     task.isCompleted = !task.isCompleted;
 
     const updateTaskRes = await this.updateTask(task, taskId, user);
@@ -94,13 +81,6 @@ export class TasksService {
 
   async deleteTask(taskId: number, user: User): Promise<TaskAPIResponse> {
     const { task } = await this.getTaskById(taskId, user);
-    if (!task) {
-      return {
-        success: false,
-        task: null,
-        msg: `No task with id ${taskId} found!`,
-      };
-    }
 
     await this.taskRepository.remove(task);
 
