@@ -1,3 +1,4 @@
+import { FilterTaskDto } from "./dto/filterTask";
 import { AuthGuard } from "@nestjs/passport";
 import { UpdateTaskDto } from "./dto/updateTask";
 import {
@@ -10,6 +11,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
   UseGuards,
 } from "@nestjs/common";
 import { TasksService } from "./tasks.service";
@@ -26,9 +28,12 @@ export class TasksController {
   constructor(private readonly taskService: TasksService) {}
 
   @Get()
-  getTasks(@GetUser() user: User): Promise<Task[]> {
+  getTasks(
+    @Query() filterTask: FilterTaskDto,
+    @GetUser() user: User,
+  ): Promise<Task[]> {
     this.logger.log("Get tasks");
-    return this.taskService.getTasks(user);
+    return this.taskService.getTasks(filterTask, user);
   }
 
   @Get(":id")

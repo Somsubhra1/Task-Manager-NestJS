@@ -1,3 +1,4 @@
+import { FilterTaskDto } from "./dto/filterTask";
 import { UpdateTaskDto } from "./dto/updateTask";
 import { TaskAPIResponse } from "./dto/taskAPI.response";
 import { Task } from "./task.entity";
@@ -17,8 +18,8 @@ export class TasksService {
     @InjectRepository(TasksRepository) private taskRepository: TasksRepository,
   ) {}
 
-  getTasks(user: User): Promise<Task[]> {
-    return this.taskRepository.find({ user });
+  getTasks(filterTask: FilterTaskDto, user: User): Promise<Task[]> {
+    return this.taskRepository.findTasks(filterTask, user);
   }
 
   async getTaskById(taskId: number, user: User): Promise<TaskAPIResponse> {
