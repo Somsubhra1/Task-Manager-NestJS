@@ -4,6 +4,7 @@ import { User } from "./user.entity";
 import * as bcrypt from "bcrypt";
 import {
   ConflictException,
+  ForbiddenException,
   InternalServerErrorException,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -38,6 +39,9 @@ export class UserRepository extends Repository<User> {
     const user = await this.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
+      if (!user.isActive) {
+        throw new ForbiddenException("User is deactivated");
+      }
       return user;
     } else {
       throw new UnauthorizedException("Email or password incorrect");

@@ -1,8 +1,11 @@
+import { User } from "./user.entity";
 import { LoginRequestBody } from "./dto/loginAPI.request";
 import { RegisterRequestBody } from "./dto/registerAPI.request";
 import { UserService } from "./user.service";
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
 import { AuthResponseBody } from "./dto/auth.response";
+import { AuthGuard } from "@nestjs/passport";
+import { GetUser } from "./get-user.decorator";
 
 @Controller("user")
 export class UserController {
@@ -20,5 +23,12 @@ export class UserController {
     @Body() loginRequestBody: LoginRequestBody,
   ): Promise<AuthResponseBody> {
     return this.userService.login(loginRequestBody);
+  }
+
+  @Get()
+  @UseGuards(AuthGuard())
+  getUser(@GetUser() user: User) {
+    const { name, email, id, isActive, registerDate } = user;
+    return { name, email, id, isActive, registerDate };
   }
 }
