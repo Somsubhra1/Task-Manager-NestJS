@@ -8,6 +8,7 @@ import {
   Get,
   Logger,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Put,
@@ -38,11 +39,11 @@ export class TasksController {
 
   @Get(":id")
   getTaskById(
-    @Param("id") taskId: number,
+    @Param("id", ParseIntPipe) taskId: number,
     @GetUser() user: User,
   ): Promise<TaskAPIResponse> {
     this.logger.debug("Get task by id");
-    return this.taskService.getTaskById(Number(taskId), user);
+    return this.taskService.getTaskById(taskId, user);
   }
 
   @Post()
@@ -57,29 +58,29 @@ export class TasksController {
   @Put(":id")
   updateTask(
     @Body() task: UpdateTaskDto,
-    @Param("id") taskId: number,
+    @Param("id", ParseIntPipe) taskId: number,
     @GetUser() user: User,
   ): Promise<TaskAPIResponse> {
     this.logger.debug("Updating task");
-    return this.taskService.updateTask(task, Number(taskId), user);
+    return this.taskService.updateTask(task, taskId, user);
   }
 
   @Patch(":id")
   toggleComplete(
-    @Param("id") taskId: number,
+    @Param("id", ParseIntPipe) taskId: number,
     @GetUser() user: User,
   ): Promise<TaskAPIResponse> {
     this.logger.debug("Updating task complete status");
 
-    return this.taskService.toggleComplete(Number(taskId), user);
+    return this.taskService.toggleComplete(taskId, user);
   }
 
   @Delete(":id")
   deleteTask(
-    @Param("id") taskId: number,
+    @Param("id", ParseIntPipe) taskId: number,
     @GetUser() user: User,
   ): Promise<TaskAPIResponse> {
     this.logger.debug("Deleting task");
-    return this.taskService.deleteTask(Number(taskId), user);
+    return this.taskService.deleteTask(taskId, user);
   }
 }
