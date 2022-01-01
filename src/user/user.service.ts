@@ -1,3 +1,4 @@
+import { JwtPayload } from "./jwt-payload.interface";
 import { AuthResponseBody } from "./dto/auth.response";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -19,7 +20,7 @@ export class UserService {
     const { name, email, id, registerDate } =
       await this.userRepository.createUser(registerRequestBody);
 
-    const payload = { email, id };
+    const payload: JwtPayload = { email, id };
 
     const accessToken = this.jwtService.sign(payload);
 
@@ -35,7 +36,7 @@ export class UserService {
       loginRequestBody,
     );
 
-    const payload = { email, id };
+    const payload: JwtPayload = { email, id };
     const accessToken = this.jwtService.sign(payload);
 
     return {
