@@ -54,6 +54,14 @@ class ConfigService {
       ssl: this.isProduction(),
     };
   }
+  public getJwtConfig() {
+    return {
+      secret: this.getValue("JWT_SECRET"),
+      signOptions: {
+        expiresIn: 3600,
+      },
+    };
+  }
 }
 
 const configService = new ConfigService(process.env).ensureValues([
@@ -63,6 +71,7 @@ const configService = new ConfigService(process.env).ensureValues([
   "DATABASE_USER",
   "DATABASE_PASSWORD",
   "DATABASE_NAME",
+  "JWT_SECRET",
 ]);
 
 export { configService };
